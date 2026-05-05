@@ -1,58 +1,92 @@
-<!-- HEADER -->
-
 <h1 align="center">🚀 ALIA – AI Life Admin Assistant</h1>
 
 <p align="center">
-  <b>Your smart AI-powered life inbox</b><br>
-  Manage tasks • Extract actions • Stay productive
+  <b>AI-powered life management system that turns chaos into structure</b>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/github/stars/sufiyan1406/ALIA---Ai-Life-Admin-Assistant?style=for-the-badge" />
-  <img src="https://img.shields.io/github/forks/sufiyan1406/ALIA---Ai-Life-Admin-Assistant?style=for-the-badge" />
-  <img src="https://img.shields.io/github/issues/sufiyan1406/ALIA---Ai-Life-Admin-Assistant?style=for-the-badge" />
+  <img src="https://img.shields.io/github/stars/sufiyan1406/ALIA---Ai-Life-Admin-Assistant?style=for-the-badge"/>
+  <img src="https://img.shields.io/github/forks/sufiyan1406/ALIA---Ai-Life-Admin-Assistant?style=for-the-badge"/>
+  <img src="https://img.shields.io/github/issues/sufiyan1406/ALIA---Ai-Life-Admin-Assistant?style=for-the-badge"/>
 </p>
 
 ---
 
-<!-- HERO GIF -->
+
+## 🌐 Live Demo
+
+🚧 **Deployment in progress**
+
+This project is currently not publicly deployed.
+
+You can run it locally by following the setup instructions below.
+
+👉 Demo will be available soon.
+
+
+## 📸 Screenshots
+
+> ⚠️ Replace these with your real screenshots
 
 <p align="center">
-  <img src="https://media.giphy.com/media/LMt9638dO8dftAjtco/giphy.gif" width="500"/>
+  <img src="https://cdn.corenexis.com/files/c/3195879720.png" width="80%"/>
+  <img src="https://cdn.corenexis.com/files/c/8627665720.png" width="80%"/>
+  <img src="https://cdn.corenexis.com/files/c/7441885720.png" width="80%"/>
+  <img src="https://cdn.corenexis.com/files/c/4178996720.png" width="80%"/>
 </p>
 
 ---
 
-## ✨ What is ALIA?
+## ✨ Overview
 
-ALIA (AI Life Admin Assistant) is a full-stack AI-powered productivity system that turns your life into a structured, manageable workflow.
+ALIA (AI Life Admin Assistant) is a full-stack AI productivity system that helps users:
 
-> Think: Notion + AI + Task Manager + Gamification — all in one.
+* Extract tasks from text/files using AI
+* Manage daily workflow efficiently
+* Track progress using gamification
+* Get intelligent daily briefings
 
 ---
 
-## 🔥 Features
+## 🔥 Core Features
 
-* 🧠 AI Task Extraction (from text/files)
-* ✅ Task Management System
-* 📊 Gamification (XP, levels, streaks)
+* 🧠 AI Task Extraction Engine
+* ✅ Full Task Management System
+* 📊 XP, Levels & Streak Tracking
 * 📅 Daily Smart Briefings
-* 📁 File Processing System
-* 🔐 Secure Authentication (Supabase)
+* 📁 File Processing & Tracking
+* 🔐 Secure Auth (Supabase)
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart TD
+    A[User] --> B[Frontend - Next.js]
+    B -->|JWT Token| C[Backend - FastAPI]
+    C --> D[Supabase Database]
+    C --> E[Supabase Storage]
+    C --> F[AI Processing Engine]
+    F --> C
+```
 
 ---
 
 ## 🛠️ Tech Stack
 
-<p align="center">
-
-<img src="https://skillicons.dev/icons?i=nextjs,react,ts,python,fastapi,postgres,supabase" />
-
-</p>
+| Layer    | Tech                    |
+| -------- | ----------------------- |
+| Frontend | Next.js, TypeScript     |
+| Backend  | FastAPI, Python         |
+| Database | Supabase (PostgreSQL)   |
+| Storage  | Supabase Storage        |
+| AI       | Custom extraction logic |
+| Email    | Resend                  |
 
 ---
 
-## 🧩 Project Structure
+## 📁 Project Structure
 
 ```bash
 ALIA/
@@ -66,24 +100,19 @@ ALIA/
 
 ## ⚙️ Setup Guide
 
-### 🔙 Backend (FastAPI)
+### 🔙 Backend
 
 ```bash
 cd alia-backend
 copy .env.example .env
 py -3.11 -m venv venv
 .\venv\Scripts\python.exe -m pip install -r requirements.txt
-```
-
-Run:
-
-```bash
 .\venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000
 ```
 
 ---
 
-### 🌐 Frontend (Next.js)
+### 🌐 Frontend
 
 ```bash
 cd life-admin
@@ -92,8 +121,7 @@ npm install
 npm run dev
 ```
 
-Open:
-👉 http://localhost:3000
+👉 Open http://localhost:3000
 
 ---
 
@@ -101,82 +129,58 @@ Open:
 
 ### Backend
 
-* Supabase URL
-* Service Role Key
-* AI / Email keys
+* SUPABASE_URL
+* SUPABASE_SERVICE_ROLE_KEY
 
 ### Frontend
 
-* Supabase URL
-* Anon Key
+* NEXT_PUBLIC_SUPABASE_URL
+* NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-⚠️ Never commit real `.env` files
+⚠️ Never commit secrets
 
 ---
 
-## 📡 API Overview
+## 📡 API Highlights
 
-```bash
-/api/v1/
-```
-
-| Endpoint      | Description    |
+| Endpoint      | Purpose        |
 | ------------- | -------------- |
 | /tasks        | Manage tasks   |
 | /ai/extract   | AI extraction  |
-| /files        | File system    |
+| /files        | File handling  |
 | /gamification | XP system      |
-| /briefings    | Daily insights |
+| /briefings    | Daily briefing |
 
 ---
 
-## 🧠 How It Works
+## 🎯 Why This Project Stands Out
 
-```mermaid
-flowchart TD
-    A[User] --> B[Frontend Next.js]
-    B --> C[Backend FastAPI]
-    C --> D[Supabase DB]
-    C --> E[AI Processing]
-    E --> D
-```
+* Combines **AI + productivity + gamification**
+* Real-world usable system (not just demo)
+* Full-stack architecture (frontend + backend + DB)
+* Clean API design with authentication
+* Scalable structure for future expansion
 
 ---
 
-## 🧪 Verify Setup
+## 🚀 Future Improvements
 
-```bash
-npm run build
-npm run lint
-```
-
----
-
-## 🔐 Security
-
-* 🔒 Supabase Auth verification
-* 🚫 No `.env` exposure
-* 🔁 Rotate keys if leaked
-
----
-
-## 🚀 Future Plans
-
+* 🔔 Smart notifications
 * 📱 Mobile app
-* 🔔 Notifications
-* 🤖 Advanced AI automation
+* 🤖 Advanced AI workflows
 * 📊 Analytics dashboard
 
 ---
 
-## 💡 Final Note
+## 👨‍💻 Developer Notes
 
-If this project looks complex, that’s because it is.
-
-But once it runs — it becomes your personal AI system.
+This project is built as a real-world MVP system.
+If something fails, debug your environment setup before assuming code issues.
 
 ---
 
-<p align="center">
-  ⭐ Star this repo if you found it useful
-</p>
+## ⭐ Support
+
+If you found this useful, consider giving it a star ⭐
+
+---
