@@ -1,0 +1,210 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brutal-yellow: #FFD60A;
+  --color-brutal-coral: #FF6B6B;
+  --color-brutal-purple: #7B61FF;
+  --color-brutal-lime: #BFFF00;
+  --color-brutal-lavender: #C4B5FD;
+  --color-brutal-offwhite: #FFFDF7;
+  --color-brutal-ink: #1A1A1A;
+
+  --font-headline: 'Space Grotesk', sans-serif;
+  --font-body: 'Manrope', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --shadow-brutal: 4px 4px 0px 0px #1A1A1A;
+  --shadow-brutal-lg: 8px 8px 0px 0px #1A1A1A;
+  --shadow-brutal-hover: 6px 6px 0px 0px #1A1A1A;
+}
+
+* {
+  border-radius: 0 !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-brutal-yellow);
+  color: var(--color-brutal-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-headline);
+  text-transform: uppercase;
+  letter-spacing: 0;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+h2 {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 3vw, 1.75rem);
+}
+
+.brutal-border {
+  border: 3px solid var(--color-brutal-ink);
+}
+
+.brutal-border-2 {
+  border: 2px solid var(--color-brutal-ink);
+}
+
+.brutal-shadow {
+  box-shadow: 4px 4px 0px 0px var(--color-brutal-ink);
+}
+
+.brutal-shadow-lg {
+  box-shadow: 8px 8px 0px 0px var(--color-brutal-ink);
+}
+
+.brutal-card {
+  border: 3px solid var(--color-brutal-ink);
+  box-shadow: 4px 4px 0px 0px var(--color-brutal-ink);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.brutal-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--color-brutal-ink);
+}
+
+.brutal-card:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px 0px var(--color-brutal-ink);
+}
+
+.brutal-press {
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.brutal-press:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px 0px var(--color-brutal-ink);
+}
+
+.brutal-press:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px 0px var(--color-brutal-ink);
+}
+
+.brutal-sticker {
+  display: inline-block;
+  padding: 4px 12px;
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  border: 2px solid var(--color-brutal-ink);
+  box-shadow: 2px 2px 0px 0px var(--color-brutal-ink);
+}
+
+@keyframes smartPulse {
+  0%,
+  100% {
+    border-width: 2px;
+  }
+  50% {
+    border-width: 6px;
+  }
+}
+
+.smart-pulse {
+  border-color: var(--color-brutal-purple);
+  border-style: solid;
+  animation: smartPulse 1.5s ease-in-out infinite;
+}
+
+.brutal-dropzone {
+  border: 4px dashed var(--color-brutal-ink);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.brutal-dropzone:hover {
+  background-color: var(--color-brutal-lime);
+  border-style: solid;
+}
+
+.brutal-checkbox {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--color-brutal-ink);
+  background: var(--color-brutal-offwhite);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.brutal-checkbox:checked {
+  background: var(--color-brutal-lime);
+}
+
+.brutal-checkbox:checked::after {
+  content: "X";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--color-brutal-ink);
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-brutal-ink);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-brutal-yellow);
+  border: 2px solid var(--color-brutal-ink);
+}
+
+.nav-item {
+  display: block;
+  padding: 12px 20px;
+  font-family: var(--font-headline);
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0;
+  border: 2px solid transparent;
+  color: var(--color-brutal-offwhite);
+  transition: all 0.15s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.nav-item:hover {
+  border-color: var(--color-brutal-offwhite);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.nav-item.active {
+  background: var(--color-brutal-lime);
+  color: var(--color-brutal-ink);
+  border-color: var(--color-brutal-ink);
+  box-shadow: 3px 3px 0px 0px rgba(255, 255, 255, 0.2);
+}

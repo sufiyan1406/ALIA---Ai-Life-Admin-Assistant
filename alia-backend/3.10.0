@@ -1,0 +1,14 @@
+Collecting APScheduler
+  Obtaining dependency information for APScheduler from https://files.pythonhosted.org/packages/9f/64/2e54428beba8d9992aa478bb8f6de9e4ecaa5f8f513bcfd567ed7fb0262d/apscheduler-3.11.2-py3-none-any.whl.metadata
+  Using cached apscheduler-3.11.2-py3-none-any.whl.metadata (6.4 kB)
+Collecting tzlocal>=3.0 (from APScheduler)
+  Obtaining dependency information for tzlocal>=3.0 from https://files.pythonhosted.org/packages/c2/14/e2a54fabd4f08cd7af1c07030603c3356b74da07f7cc056e600436edfa17/tzlocal-5.3.1-py3-none-any.whl.metadata
+  Using cached tzlocal-5.3.1-py3-none-any.whl.metadata (7.6 kB)
+Collecting tzdata (from tzlocal>=3.0->APScheduler)
+  Obtaining dependency information for tzdata from https://files.pythonhosted.org/packages/ce/e4/dccd7f47c4b64213ac01ef921a1337ee6e30e8c6466046018326977efd95/tzdata-2026.2-py2.py3-none-any.whl.metadata
+  Using cached tzdata-2026.2-py2.py3-none-any.whl.metadata (1.4 kB)
+Using cached apscheduler-3.11.2-py3-none-any.whl (64 kB)
+Using cached tzlocal-5.3.1-py3-none-any.whl (18 kB)
+Using cached tzdata-2026.2-py2.py3-none-any.whl (349 kB)
+Installing collected packages: tzdata, tzlocal, APScheduler
+Successfully installed APScheduler-3.11.2 tzdata-2026.2 tzlocal-5.3.1
