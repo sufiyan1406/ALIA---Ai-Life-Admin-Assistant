@@ -30,8 +30,8 @@ Run locally using the setup guide below.
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="https://cdn.corenexis.com/files/c/3195879720.png" width="45%" />
   <img src="https://cdn.corenexis.com/files/c/8627665720.png" width="45%" />
+  <img src="https://cdn.corenexis.com/files/c/3195879720.png" width="45%" />
 </p>
 
 <p align="center">
