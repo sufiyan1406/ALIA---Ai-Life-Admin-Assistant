@@ -30,15 +30,14 @@ Run locally using the setup guide below.
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="https://cdn.corenexis.com/files/c/3195879720.png" width="85%" style="border-radius:10px"/>
-  <br/><br/>
-  <img src="https://cdn.corenexis.com/files/c/8627665720.png" width="85%" style="border-radius:10px"/>
-  <br/><br/>
-  <img src="https://cdn.corenexis.com/files/c/7441885720.png" width="85%" style="border-radius:10px"/>
-  <br/><br/>
-  <img src="https://cdn.corenexis.com/files/c/4178996720.png" width="85%" style="border-radius:10px"/>
+  <img src="https://cdn.corenexis.com/files/c/3195879720.png" width="45%" />
+  <img src="https://cdn.corenexis.com/files/c/8627665720.png" width="45%" />
 </p>
 
+<p align="center">
+  <img src="https://cdn.corenexis.com/files/c/7441885720.png" width="45%" />
+  <img src="https://cdn.corenexis.com/files/c/4178996720.png" width="45%" />
+</p>
 ---
 
 ## ✨ Overview
