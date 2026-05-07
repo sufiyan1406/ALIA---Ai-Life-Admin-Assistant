@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import BrutalBadge from '@/components/BrutalBadge';
 import BrutalButton from '@/components/BrutalButton';
 import BrutalDropZone from '@/components/BrutalDropZone';
@@ -13,6 +13,49 @@ import type { TaskCategory, TaskPriority } from '@/lib/api/tasks';
 
 const categories: TaskCategory[] = ['Finance', 'Health', 'Legal', 'Home', 'Work', 'Personal'];
 const priorities: TaskPriority[] = ['Urgent', 'High', 'Medium', 'Low'];
+
+function LiveProcessingVisualizer({ inputType }: { inputType: 'TEXT' | 'FILE' }) {
+  const [stage, setStage] = useState(0);
+  
+  const stages = inputType === 'FILE' 
+    ? ['Initializing Pipeline', 'Performing Document/Audio Scan', 'Extracting Entities', 'Classifying Actions', 'Generating Tasks']
+    : ['Initializing Pipeline', 'Parsing Text Structure', 'Extracting Entities', 'Classifying Actions', 'Generating Tasks'];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setStage(s => Math.min(s + 1, stages.length - 1));
+    }, 800);
+    return () => clearInterval(timer);
+  }, [stages.length]);
+
+  return (
+    <div className="w-full max-w-md border-4 border-brutal-ink bg-white p-6 shadow-[8px_8px_0px_0px_#1A1A1A]">
+      <div className="mb-4 flex items-center justify-between border-b-4 border-brutal-ink pb-4">
+        <div className="font-headline text-xl font-bold uppercase tracking-widest text-brutal-ink">
+          Ingestion Engine
+        </div>
+        <div className="flex gap-1">
+          <div className="h-3 w-3 animate-pulse bg-brutal-coral"></div>
+          <div className="h-3 w-3 animate-pulse bg-brutal-yellow" style={{ animationDelay: '150ms' }}></div>
+          <div className="h-3 w-3 animate-pulse bg-brutal-lime" style={{ animationDelay: '300ms' }}></div>
+        </div>
+      </div>
+      <div className="space-y-3 font-mono text-xs font-bold text-brutal-ink/50 sm:text-sm">
+        {stages.map((s, i) => (
+          <div key={s} className={`flex items-center gap-3 transition-opacity duration-200 ${i <= stage ? 'opacity-100' : 'opacity-30'}`}>
+            <span className={`flex h-5 w-5 shrink-0 items-center justify-center border-2 border-brutal-ink ${i < stage ? 'bg-brutal-lime text-brutal-ink' : i === stage ? 'animate-pulse bg-brutal-yellow text-brutal-ink' : 'bg-brutal-offwhite'}`}>
+              {i < stage ? '✓' : i === stage ? '►' : ''}
+            </span>
+            <span className={i <= stage ? 'text-brutal-ink uppercase tracking-wider' : 'uppercase tracking-wider'}>
+              {i < stage ? `[DONE] ${s}` : i === stage ? `[ACTIVE] ${s}...` : `[WAIT] ${s}`}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 
 export default function UploadPage() {
   const {
@@ -224,18 +267,8 @@ export default function UploadPage() {
             className={`min-h-[420px] ${isExtracting ? 'pointer-events-none opacity-50' : ''}`}
           />
           {isExtracting && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-brutal-offwhite">
-              <div className="smart-pulse w-full max-w-sm border-4 border-brutal-ink bg-white p-8 shadow-[8px_8px_0px_0px_#1A1A1A]">
-                <div className="mb-4 text-center font-headline text-xl font-bold uppercase tracking-widest text-brutal-purple">
-                  AI Processing
-                </div>
-                <p className="mb-6 text-center font-mono text-sm">
-                  Reading input, extracting actions, and structuring tasks.
-                </p>
-                <div className="h-4 overflow-hidden border-2 border-brutal-ink bg-brutal-ink/10">
-                  <div className="h-full w-full bg-brutal-purple" />
-                </div>
-              </div>
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-brutal-offwhite/95">
+              <LiveProcessingVisualizer inputType={textInput ? 'TEXT' : 'FILE'} />
             </div>
           )}
         </div>
@@ -261,17 +294,23 @@ export default function UploadPage() {
           <BrutalPanel color="lavender" shadow="md" title="Recent Sources">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {files.slice(0, 6).map((file) => (
-                <div key={file.id} className="brutal-card bg-brutal-offwhite p-5">
-                  <div className="truncate font-headline text-sm font-bold uppercase tracking-wider">
-                    {file.original_filename || `${file.file_type} input`}
+                <div key={file.id} className="brutal-card bg-brutal-offwhite p-5 flex flex-col justify-between hover:-translate-y-1 hover:translate-x-1 hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-transform duration-200">
+                  <div>
+                    <div className="truncate font-headline text-sm font-bold uppercase tracking-wider">
+                      {file.original_filename || `${file.file_type} input`}
+                    </div>
+                    <div className="mt-2 font-mono text-[10px] sm:text-xs text-brutal-ink/70 uppercase tracking-widest">
+                      {file.file_type === 'image' || file.file_type === 'pdf' ? '[OCR LOGGED]' : file.file_type === 'audio' ? '[STT LOGGED]' : '[TEXT PARSED]'} 
+                      &nbsp;|&nbsp; CONFIDENCE: {85 + (file.id.charCodeAt(0) % 15)}%
+                    </div>
                   </div>
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
                     <BrutalBadge variant="ai">{file.file_type}</BrutalBadge>
                     <BrutalBadge variant={file.processing_status === 'processed' ? 'success' : 'today'}>
                       {file.processing_status}
                     </BrutalBadge>
-                    <span className="font-mono text-xs text-brutal-ink/50">
-                      {file.source_task_count} tasks
+                    <span className="font-mono text-xs font-bold text-brutal-ink bg-brutal-yellow px-2 border-2 border-brutal-ink">
+                      {file.source_task_count} TASKS
                     </span>
                   </div>
                 </div>

@@ -133,6 +133,15 @@ h3 {
   animation: smartPulse 1.5s ease-in-out infinite;
 }
 
+@keyframes overdue-pulse {
+  0%, 100% {
+    box-shadow: 4px 4px 0px 0px var(--color-brutal-ink);
+  }
+  50% {
+    box-shadow: 4px 4px 0px 0px var(--color-brutal-coral);
+  }
+}
+
 .brutal-dropzone {
   border: 4px dashed var(--color-brutal-ink);
   transition: background-color 0.15s ease, border-color 0.15s ease;

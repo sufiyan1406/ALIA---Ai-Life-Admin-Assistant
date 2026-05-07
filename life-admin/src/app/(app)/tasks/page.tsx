@@ -57,6 +57,7 @@ interface TaskCardProps {
   onReopen: (id: string) => Promise<void>;
   onAddReminder: (taskId: string, remindAt: string) => Promise<void>;
   onDeleteReminder: (id: string) => Promise<void>;
+  onDismissReminder: (id: string) => Promise<void>;
 }
 
 function TaskCard({
@@ -70,8 +71,10 @@ function TaskCard({
   onReopen,
   onAddReminder,
   onDeleteReminder,
+  onDismissReminder,
 }: TaskCardProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const [showReminders, setShowReminders] = useState(false);
   const [taskName, setTaskName] = useState(task.task_name);
   const [dueDate, setDueDate] = useState(task.due_date ?? '');
@@ -94,78 +97,71 @@ function TaskCard({
 
   const handleAddReminder = async () => {
     if (!newReminderDate) return;
-    await onAddReminder(task.id, new Date(newReminderDate).toISOString());
-    setNewReminderDate('');
+    try {
+      await onAddReminder(task.id, new Date(newReminderDate).toISOString());
+      setNewReminderDate('');
+    } catch (err: any) {
+      const msg = err.response?.data?.detail?.[0]?.msg || err.response?.data?.detail || "Failed to add reminder. Make sure the time is in the future.";
+      alert(msg);
+    }
   };
 
   const isDone = task.status === 'done';
   const isArchived = task.status === 'archived';
 
+  // AI Derivations
+  const isQuickWin = (task.priority === 'Low' || task.priority === 'Medium') && task.task_name.length < 30 && !task.suggested_action;
+  const isHighEffort = (task.priority === 'High' || task.priority === 'Urgent') && !!task.suggested_action;
+
   return (
-    <div className={`brutal-card bg-brutal-offwhite p-5 ${isDone || isArchived ? 'opacity-60' : ''} ${isOverdue(task.due_date) && !isDone ? 'border-l-[10px] border-l-brutal-coral' : ''}`}>
+    <div className={`brutal-card bg-brutal-offwhite border-2 border-brutal-ink transition-all duration-150 ${isDone || isArchived ? 'opacity-60' : ''} ${isOverdue(task.due_date) && !isDone ? 'border-l-[8px] border-l-brutal-coral animate-[overdue-pulse_2s_ease-in-out_infinite]' : ''}`}
+      style={isOverdue(task.due_date) && !isDone ? { animation: 'overdue-pulse 2s ease-in-out infinite' } : undefined}
+    >
       {isEditing ? (
-        <div className="space-y-4">
+        <div className="space-y-4 p-4">
           <BrutalInput label="Task Name" value={taskName} onChange={(event) => setTaskName(event.target.value)} />
           <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             <BrutalInput label="Due Date" type="date" value={dueDate} onChange={(event) => setDueDate(event.target.value)} />
             <label>
-              <span className="mb-2 block font-headline text-xs font-bold uppercase tracking-widest">Priority</span>
-              <select className="w-full border-2 border-brutal-ink bg-white px-3 py-3 font-mono text-sm" value={priority} onChange={(event) => setPriority(event.target.value as TaskPriority)}>
+              <span className="mb-2 block font-headline text-[10px] font-bold uppercase tracking-widest">Priority</span>
+              <select className="w-full border-2 border-brutal-ink bg-white px-2 py-2 font-mono text-xs" value={priority} onChange={(event) => setPriority(event.target.value as TaskPriority)}>
                 {priorities.map((value) => <option key={value} value={value}>{value}</option>)}
               </select>
             </label>
             <label>
-              <span className="mb-2 block font-headline text-xs font-bold uppercase tracking-widest">Category</span>
-              <select className="w-full border-2 border-brutal-ink bg-white px-3 py-3 font-mono text-sm" value={category} onChange={(event) => setCategory(event.target.value as TaskCategory | '')}>
+              <span className="mb-2 block font-headline text-[10px] font-bold uppercase tracking-widest">Category</span>
+              <select className="w-full border-2 border-brutal-ink bg-white px-2 py-2 font-mono text-xs" value={category} onChange={(event) => setCategory(event.target.value as TaskCategory | '')}>
                 <option value="">Uncategorized</option>
                 {categories.map((value) => <option key={value} value={value}>{value}</option>)}
               </select>
             </label>
           </div>
 
-          {/* ── Reminder Management (inside edit mode) ── */}
-          <div className="border-2 border-brutal-ink bg-brutal-lavender/20 p-4">
-            <span className="mb-3 block font-headline text-xs font-bold uppercase tracking-widest">🔔 Reminders</span>
+          <div className="border-2 border-brutal-ink bg-brutal-lavender/20 p-3">
+            <span className="mb-2 block font-headline text-[10px] font-bold uppercase tracking-widest">🔔 Reminders</span>
             {taskReminders.length > 0 ? (
-              <div className="mb-3 space-y-2">
+              <div className="mb-2 space-y-1">
                 {taskReminders.map((r) => (
-                  <div key={r.id} className="flex items-center justify-between border border-brutal-ink bg-white px-3 py-2">
-                    <span className="font-mono text-xs">
+                  <div key={r.id} className="flex items-center justify-between border border-brutal-ink bg-white px-2 py-1">
+                    <span className="font-mono text-[10px]">
                       {new Date(r.remind_at).toLocaleString()} {r.sent && <span className="text-brutal-ink/40">(sent)</span>}
                     </span>
-                    <button
-                      onClick={() => onDeleteReminder(r.id)}
-                      className="ml-2 border border-brutal-ink bg-brutal-coral px-2 py-0.5 font-mono text-xs font-bold transition-shadow hover:shadow-[2px_2px_0px_0px_#1A1A1A]"
-                    >
-                      ✕
-                    </button>
+                    <button onClick={() => onDeleteReminder(r.id)} className="ml-2 bg-brutal-coral px-1.5 font-mono text-[10px] font-bold border border-brutal-ink">✕</button>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="mb-3 font-mono text-xs text-brutal-ink/50">No reminders set.</p>
+              <p className="mb-2 font-mono text-[10px] text-brutal-ink/50">No reminders set.</p>
             )}
             <div className="flex items-end gap-2">
-              <BrutalInput
-                label="Add Reminder"
-                type="datetime-local"
-                value={newReminderDate}
-                onChange={(event) => setNewReminderDate(event.target.value)}
-                className="flex-1"
-              />
-              <BrutalButton size="sm" variant="purple" onClick={handleAddReminder} disabled={!newReminderDate}>
-                + Add
-              </BrutalButton>
+              <BrutalInput label="Add Reminder" type="datetime-local" value={newReminderDate} onChange={(event) => setNewReminderDate(event.target.value)} className="flex-1 text-xs" />
+              <BrutalButton size="sm" variant="purple" onClick={handleAddReminder} disabled={!newReminderDate}>+ Add</BrutalButton>
             </div>
           </div>
 
           <label>
-            <span className="mb-2 block font-headline text-xs font-bold uppercase tracking-widest">Notes</span>
-            <textarea
-              className="min-h-20 w-full border-2 border-brutal-ink bg-white px-4 py-3 font-body text-sm"
-              value={notes}
-              onChange={(event) => setNotes(event.target.value)}
-            />
+            <span className="mb-2 block font-headline text-[10px] font-bold uppercase tracking-widest">Notes</span>
+            <textarea className="min-h-[60px] w-full border-2 border-brutal-ink bg-white px-3 py-2 font-body text-xs" value={notes} onChange={(event) => setNotes(event.target.value)} />
           </label>
           <div className="flex flex-wrap justify-end gap-2">
             <BrutalButton variant="ghost" size="sm" onClick={() => setIsEditing(false)}>Cancel</BrutalButton>
@@ -173,92 +169,97 @@ function TaskCard({
           </div>
         </div>
       ) : (
-        <div className="flex flex-col gap-4 md:flex-row md:items-start">
-          <input
-            type="checkbox"
-            className="brutal-checkbox mt-1 cursor-pointer"
-            checked={isDone}
-            onChange={() => onComplete(task.id)}
-            disabled={isDone || isArchived}
-            aria-label={`Complete ${task.task_name}`}
-          />
+        <div className="flex flex-col">
+          {/* Header Row (Always Visible) */}
+          <div className="flex items-center gap-3 p-3 cursor-pointer hover:bg-brutal-yellow/20" onClick={() => setIsExpanded(!isExpanded)}>
+            <input
+              type="checkbox"
+              className="brutal-checkbox mt-0.5 cursor-pointer shrink-0"
+              checked={isDone}
+              onChange={(e) => { e.stopPropagation(); onComplete(task.id); }}
+              disabled={isDone || isArchived}
+            />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                {task.needs_review && <BrutalBadge variant="today">Review Req</BrutalBadge>}
+                {isOverdue(task.due_date) && !isDone && <BrutalBadge variant="urgent">Overdue</BrutalBadge>}
+                <BrutalBadge variant="later">
+                  {formatDueDate(task.due_date) || 'NO DEADLINE'}
+                </BrutalBadge>
+                <BrutalBadge variant={priorityBadgeVariant(task.priority)}>{task.priority}</BrutalBadge>
+                <BrutalBadge variant={isDone ? 'success' : 'later'}>{statusLabel(task.status)}</BrutalBadge>
+                {isQuickWin && <BrutalBadge variant="success">⚡ Quick Win</BrutalBadge>}
+                {isHighEffort && <BrutalBadge variant="ai">🧠 High Effort</BrutalBadge>}
+                {reminderCount > 0 && <BrutalBadge variant="today">🔔 {reminderCount}</BrutalBadge>}
+              </div>
+              <p className={`font-body text-sm font-bold truncate ${isDone ? 'line-through text-brutal-ink/50' : ''}`}>
+                {task.task_name}
+              </p>
+            </div>
+            <div className="shrink-0 text-brutal-ink/30 font-mono">
+              {isExpanded ? '▲' : '▼'}
+            </div>
+          </div>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              {task.needs_review && <BrutalBadge variant="today">Needs Review</BrutalBadge>}
-              {isOverdue(task.due_date) && !isDone && <BrutalBadge variant="urgent">Overdue</BrutalBadge>}
-              <BrutalBadge variant={priorityBadgeVariant(task.priority)}>{task.priority}</BrutalBadge>
-              <BrutalBadge variant={isDone ? 'success' : 'later'}>{statusLabel(task.status)}</BrutalBadge>
-              {task.category && <BrutalBadge variant="ai">{task.category}</BrutalBadge>}
-
-              {/* ── Bell icon with reminder count ── */}
-              {reminderCount > 0 && (
-                <button
-                  onClick={() => setShowReminders((v) => !v)}
-                  className="relative inline-flex items-center border border-brutal-ink bg-brutal-yellow px-2 py-0.5 font-mono text-xs font-bold transition-shadow hover:shadow-[2px_2px_0px_0px_#1A1A1A]"
-                  title={`${reminderCount} active reminder(s)`}
-                >
-                  🔔 {reminderCount}
-                </button>
+          {/* Expanded Content */}
+          {isExpanded && (
+            <div className="border-t-2 border-brutal-ink/10 p-3 bg-white/50 space-y-3">
+              {task.category && (
+                <div className="font-mono text-[10px] uppercase text-brutal-ink/60">Category: {task.category} | {task.xp_value} XP</div>
               )}
-            </div>
+              
+              {showReminders && taskReminders.length > 0 && (
+                <div className="border border-brutal-ink bg-brutal-lavender/20 p-2">
+                  <p className="mb-1 font-headline text-[10px] font-bold uppercase tracking-widest">Reminders</p>
+                  <div className="space-y-1">
+                    {taskReminders.filter((r) => r.status === 'pending').map((r) => (
+                      <div key={r.id} className="flex justify-between font-mono text-[10px]">
+                        <span>⏰ {new Date(r.remind_at).toLocaleString()}</span>
+                        <span className="text-brutal-ink/50">in {formatReminderDate(r.remind_at)}</span>
+                      </div>
+                    ))}
+                    {taskReminders.filter((r) => r.status === 'sent').map((r) => (
+                      <div key={r.id} className="flex items-center justify-between font-mono text-[10px] bg-brutal-lime/20 px-1">
+                        <span>✅ Sent: {new Date(r.remind_at).toLocaleString()}</span>
+                        <button
+                          onClick={() => onDismissReminder(r.id)}
+                          className="ml-2 bg-brutal-offwhite px-1.5 font-mono text-[10px] font-bold border border-brutal-ink hover:bg-brutal-yellow"
+                        >Dismiss</button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-            <p className={`mt-3 font-body text-lg font-semibold ${isDone ? 'line-through' : ''}`}>
-              {task.task_name}
-            </p>
-            <div className="mt-2 font-mono text-xs uppercase text-brutal-ink/50">
-              {formatDueDate(task.due_date) || 'NO DUE DATE'} | {task.xp_value} XP
-            </div>
+              {task.suggested_action && (
+                <div className="border-l-2 border-brutal-purple pl-2">
+                  <span className="font-mono text-[9px] font-bold text-brutal-purple uppercase tracking-widest block mb-0.5">AI Suggestion</span>
+                  <p className="font-body text-xs text-brutal-ink/80">{task.suggested_action}</p>
+                </div>
+              )}
+              {task.notes && (
+                <p className="font-body text-xs text-brutal-ink/70 italic bg-brutal-offwhite p-2 border border-brutal-ink/10">{task.notes}</p>
+              )}
 
-            {/* ── Inline reminder preview (collapsed by default) ── */}
-            {showReminders && taskReminders.length > 0 && (
-              <div className="mt-3 border-2 border-brutal-ink bg-brutal-lavender/20 p-3">
-                <p className="mb-2 font-headline text-xs font-bold uppercase tracking-widest">Upcoming Reminders</p>
-                <div className="space-y-1">
-                  {taskReminders.filter((r) => !r.sent).map((r) => (
-                    <div key={r.id} className="flex items-center justify-between font-mono text-xs">
-                      <span>⏰ {new Date(r.remind_at).toLocaleString()}</span>
-                      <span className="text-brutal-ink/50">in {formatReminderDate(r.remind_at)}</span>
-                    </div>
-                  ))}
+              <div className="flex flex-wrap items-center justify-between pt-2">
+                {!isDone && !isArchived && (
+                  <div className="flex items-center gap-2">
+                    <input type="date" className="border border-brutal-ink text-[10px] p-1 font-mono" value={snoozeDate} onChange={(e) => setSnoozeDate(e.target.value)} />
+                    <BrutalButton size="sm" variant="ghost" className="!px-2 !py-1 !text-[10px]" onClick={() => { onSnooze(task.id, snoozeDate); setSnoozeDate(''); }} disabled={!snoozeDate}>Snooze</BrutalButton>
+                  </div>
+                )}
+                <div className="flex gap-2 ml-auto">
+                  <BrutalButton size="sm" variant="ghost" className="!px-2 !py-1 !text-[10px]" onClick={() => setIsEditing(true)} disabled={isArchived}>Edit</BrutalButton>
+                  {isDone || isArchived ? (
+                    <BrutalButton size="sm" variant="secondary" className="!px-2 !py-1 !text-[10px]" onClick={() => onReopen(task.id)}>Reopen</BrutalButton>
+                  ) : (
+                    <BrutalButton size="sm" variant="ghost" className="!px-2 !py-1 !text-[10px]" onClick={() => onUpdate(task.id, { status: 'archived' })}>Archive</BrutalButton>
+                  )}
+                  <BrutalButton size="sm" variant="primary" className="!px-2 !py-1 !text-[10px]" onClick={() => onDelete(task.id)}>Del</BrutalButton>
                 </div>
               </div>
-            )}
-
-            {task.suggested_action && (
-              <p className="mt-3 border-2 border-brutal-ink bg-brutal-yellow/40 p-3 font-body text-sm">
-                {task.suggested_action}
-              </p>
-            )}
-            {task.notes && (
-              <p className="mt-2 font-body text-sm text-brutal-ink/70">{task.notes}</p>
-            )}
-
-            {!isDone && !isArchived && (
-              <div className="mt-4 flex flex-wrap items-end gap-2">
-                <BrutalInput
-                  label="Snooze Until"
-                  type="date"
-                  value={snoozeDate}
-                  onChange={(event) => setSnoozeDate(event.target.value)}
-                  className="w-full sm:w-48"
-                />
-                <BrutalButton size="sm" variant="purple" onClick={() => onSnooze(task.id, snoozeDate)} disabled={!snoozeDate}>
-                  Snooze
-                </BrutalButton>
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-row gap-2 md:flex-col">
-            <BrutalButton size="sm" variant="ghost" onClick={() => setIsEditing(true)} disabled={isArchived}>Edit</BrutalButton>
-            {isDone || isArchived ? (
-              <BrutalButton size="sm" variant="secondary" onClick={() => onReopen(task.id)}>Reopen</BrutalButton>
-            ) : (
-              <BrutalButton size="sm" variant="ghost" onClick={() => onUpdate(task.id, { status: 'archived' })}>Archive</BrutalButton>
-            )}
-            <BrutalButton size="sm" variant="primary" onClick={() => onDelete(task.id)}>Delete</BrutalButton>
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -307,6 +308,7 @@ export default function TasksPage() {
     countForTask,
     createReminder,
     deleteReminder: deleteReminderApi,
+    dismissReminder: dismissReminderApi,
   } = useReminders();
 
   const activeCount = tasks.filter((task) => task.status !== 'done' && task.status !== 'archived').length;
@@ -354,6 +356,7 @@ export default function TasksPage() {
       onReopen={reopenTask}
       onAddReminder={createReminder}
       onDeleteReminder={deleteReminderApi}
+      onDismissReminder={dismissReminderApi}
     />
   );
 

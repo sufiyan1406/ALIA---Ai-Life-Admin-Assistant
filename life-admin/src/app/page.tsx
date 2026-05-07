@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import BrutalButton from '@/components/BrutalButton';
 import BrutalPanel from '@/components/BrutalPanel';
@@ -12,6 +12,20 @@ import BrutalPanel from '@/components/BrutalPanel';
 
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
+  const [demoStep, setDemoStep] = useState(0);
+
+  const demoSteps = [
+    { label: "RAW INPUT", text: "Voice Note: 'Remind me to pay the electricity bill of $45 by next Friday'", color: 'text-brutal-coral' },
+    { label: "AI PIPELINE", text: "[STT_LOGGED] -> [ENTITIES_EXTRACTED: 'electricity bill', '$45', 'next Friday']", color: 'text-brutal-yellow' },
+    { label: "STRUCTURED TASK", text: "Task: Pay Electricity Bill\nAmount: $45\nDue: Next Friday\nPriority: High\nCategory: Finance", color: 'text-brutal-lime' }
+  ];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setDemoStep(s => (s + 1) % demoSteps.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [demoSteps.length]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -88,12 +102,22 @@ export default function LandingPage() {
                 </p>
               </BrutalPanel>
 
-              <div className="brutal-border brutal-shadow bg-brutal-offwhite p-6">
-                <div className="font-mono text-sm text-brutal-ink/60 uppercase tracking-wider mb-2">
-                  Currently Processing
+              <div className="brutal-border brutal-shadow bg-brutal-ink p-6 relative overflow-hidden text-brutal-offwhite min-h-[220px]">
+                <div className="font-mono text-xs font-bold text-brutal-offwhite/50 uppercase tracking-widest mb-4 border-b-2 border-brutal-offwhite/20 pb-2">
+                  Live AI Translation Demo
                 </div>
-                <div className="font-headline font-bold text-6xl text-brutal-ink">
-                  24<span className="text-brutal-purple">/</span>7
+                <div className="h-32 relative">
+                  {demoSteps.map((s, i) => (
+                    <div key={i} className={`absolute inset-0 transition-opacity duration-300 ${i === demoStep ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}>
+                      <div className={`font-headline text-sm font-bold uppercase mb-2 ${s.color}`}>{s.label}</div>
+                      <div className="font-mono text-sm leading-relaxed whitespace-pre-wrap">{s.text}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2 mt-4">
+                  {demoSteps.map((_, i) => (
+                    <div key={i} className={`h-2 flex-1 border border-brutal-offwhite ${i === demoStep ? 'bg-brutal-offwhite' : 'bg-brutal-offwhite/10'}`} />
+                  ))}
                 </div>
               </div>
             </div>
@@ -156,9 +180,8 @@ export default function LandingPage() {
             </BrutalPanel>
           </div>
 
-          {/* Extra wide block spanning under blocks 2 & 3 */}
           <div className="md:col-span-9 md:col-start-4">
-            <div className="brutal-border brutal-shadow-lg bg-brutal-ink text-brutal-offwhite p-8 flex items-center justify-between">
+            <div className="brutal-border brutal-shadow-lg bg-brutal-ink text-brutal-offwhite p-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
               <div>
                 <div className="font-mono text-xs uppercase tracking-widest text-brutal-yellow mb-2">
                   Powered by AI
@@ -167,12 +190,34 @@ export default function LandingPage() {
                   YOUR PERSONAL LIFE ADMIN ASSISTANT
                 </h3>
               </div>
-              <Link href="/dashboard">
+              <Link href="/dashboard" className="shrink-0">
                 <BrutalButton variant="secondary" size="md">
                   Try It Now
                 </BrutalButton>
               </Link>
             </div>
+          </div>
+        </div>
+
+        {/* Before / After comparison */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-16 max-w-5xl mx-auto">
+          <div className="brutal-border brutal-shadow-lg bg-brutal-offwhite p-6 border-l-[12px] border-l-brutal-coral">
+            <div className="font-headline text-xl font-bold uppercase mb-4 text-brutal-coral">Before SLI</div>
+            <ul className="font-mono text-sm space-y-3 text-brutal-ink/70">
+              <li>- 5 ignored unread emails</li>
+              <li>- Screenshots of receipts lost in gallery</li>
+              <li>- Forgot to cancel trial (charged $12)</li>
+              <li>- "I'll do it later" mental debt</li>
+            </ul>
+          </div>
+          <div className="brutal-border brutal-shadow-lg bg-brutal-offwhite p-6 border-l-[12px] border-l-brutal-lime">
+            <div className="font-headline text-xl font-bold uppercase mb-4 text-brutal-ink">After SLI</div>
+            <ul className="font-mono text-sm space-y-3 font-bold">
+              <li>[DONE] Trial canceled (Reminder triggered)</li>
+              <li>[CAPTURED] Receipts categorized to Finance</li>
+              <li>[PLANNED] Priority task list generated daily</li>
+              <li>[OPTIMAL] Zero mental debt</li>
+            </ul>
           </div>
         </div>
       </section>

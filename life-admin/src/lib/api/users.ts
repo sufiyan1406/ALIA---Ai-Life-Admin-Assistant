@@ -7,6 +7,9 @@ export interface UserProfile {
   timezone: string;
   briefing_time: string;
   plan: 'free' | 'pro' | 'team';
+  reminder_intensity: 'minimal' | 'normal' | 'aggressive';
+  quiet_hours_start: string | null;
+  quiet_hours_end: string | null;
   created_at: string;
 }
 
@@ -14,6 +17,9 @@ export interface UserProfileUpdate {
   display_name?: string;
   timezone?: string;
   briefing_time?: string;
+  reminder_intensity?: 'minimal' | 'normal' | 'aggressive';
+  quiet_hours_start?: string;
+  quiet_hours_end?: string;
 }
 
 export async function getUserProfile(): Promise<UserProfile> {

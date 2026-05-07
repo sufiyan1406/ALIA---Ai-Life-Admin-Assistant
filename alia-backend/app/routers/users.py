@@ -32,7 +32,7 @@ async def update_user_profile(
     body: UserUpdate,
     current_user: CurrentUser = Depends(get_current_user),
 ):
-    """Update display_name, timezone, or briefing_time. Cannot update plan or id."""
+    """Update profile fields. Cannot update plan or id."""
     update_data = body.model_dump(exclude_unset=True)
 
     if not update_data:
@@ -42,8 +42,9 @@ async def update_user_profile(
         )
 
     # Convert time objects to string for Supabase
-    if "briefing_time" in update_data and update_data["briefing_time"] is not None:
-        update_data["briefing_time"] = update_data["briefing_time"].isoformat()
+    for time_field in ("briefing_time", "quiet_hours_start", "quiet_hours_end"):
+        if time_field in update_data and update_data[time_field] is not None:
+            update_data[time_field] = update_data[time_field].isoformat()
 
     result = (
         supabase.table("users")

@@ -1,6 +1,14 @@
 import { apiClient } from './client';
 import type { GamificationState } from './gamification';
+import type { ReminderResponse } from './reminders';
 import type { TaskResponse } from './tasks';
+
+export interface ReminderActivity {
+  event_type: string;
+  message: string;
+  timestamp: string;
+  task_id: string | null;
+}
 
 export interface DailyBriefing {
   briefing_date: string;
@@ -11,6 +19,8 @@ export interface DailyBriefing {
   today: TaskResponse[];
   upcoming: TaskResponse[];
   gamification: GamificationState | null;
+  upcoming_reminders: ReminderResponse[];
+  recent_activity: ReminderActivity[];
 }
 
 export async function getTodayBriefing(): Promise<DailyBriefing> {

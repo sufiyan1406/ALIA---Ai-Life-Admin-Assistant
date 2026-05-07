@@ -14,7 +14,18 @@ from app.config import settings
 logger = logging.getLogger("alia.email")
 
 
-def _build_reminder_html(task_name: str, due_date: str | None, remind_at: str) -> str:
+def _priority_color(priority: str) -> str:
+    """Map task priority to a hex color for the email template."""
+    colors = {
+        "Urgent": "#FF6B6B",
+        "High": "#FFFBCC",
+        "Medium": "#C8B6FF",
+        "Low": "#F5F0E8",
+    }
+    return colors.get(priority, "#F5F0E8")
+
+
+def _build_reminder_html(task_name: str, due_date: str | None, priority: str, remind_at: str) -> str:
     """Build a styled HTML email body for a task reminder."""
     due_section = ""
     if due_date:
@@ -25,6 +36,8 @@ def _build_reminder_html(task_name: str, due_date: str | None, remind_at: str) -
           </td>
         </tr>
         """
+
+    priority_color = _priority_color(priority)
 
     return f"""
     <!DOCTYPE html>
@@ -41,6 +54,14 @@ def _build_reminder_html(task_name: str, due_date: str | None, remind_at: str) -
                   <h1 style="margin:0; font-family: 'Impact', sans-serif; font-size: 24px; color: #1A1A1A; letter-spacing: 2px;">
                     🔔 ALIA REMINDER
                   </h1>
+                </td>
+              </tr>
+              <!-- Priority Bar -->
+              <tr>
+                <td style="background-color: {priority_color}; padding: 8px 24px; border-bottom: 2px solid #1A1A1A;">
+                  <span style="font-family: monospace; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; color: #1A1A1A;">
+                    Priority: {priority}
+                  </span>
                 </td>
               </tr>
               <!-- Body -->
@@ -76,6 +97,7 @@ def send_reminder_email(
     to_email: str,
     task_name: str,
     due_date: str | None = None,
+    priority: str = "Medium",
     remind_at: str | None = None,
 ) -> bool:
     """
@@ -96,10 +118,11 @@ def send_reminder_email(
         plain_text = f"Reminder: {task_name}"
         if due_date:
             plain_text += f"\nDue: {due_date}"
+        plain_text += f"\nPriority: {priority}"
         plain_text += "\n\n— ALIA Assistant"
 
         # HTML version
-        html_body = _build_reminder_html(task_name, due_date, remind_at or "")
+        html_body = _build_reminder_html(task_name, due_date, priority, remind_at or "")
 
         msg.attach(MIMEText(plain_text, "plain"))
         msg.attach(MIMEText(html_body, "html"))

@@ -19,6 +19,16 @@ node_modules/
 /.next/
 /out/
 
+# Python / Environment
+alia-backend/venv/
+alia-backend/.venv/
+alia-backend/__pycache__/
+alia-backend/*.pyc
+venv/
+.venv/
+__pycache__/
+*.pyc
+
 # production
 /build
 
@@ -30,8 +40,6 @@ node_modules/
 .env
 .env.local
 .env.*
-venv/
-/venv
 
 
 # Editor/project files

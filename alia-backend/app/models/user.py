@@ -13,6 +13,9 @@ class UserResponse(BaseModel):
     timezone: str
     briefing_time: time
     plan: str
+    reminder_intensity: str = "normal"
+    quiet_hours_start: Optional[time] = None
+    quiet_hours_end: Optional[time] = None
     created_at: datetime
 
 
@@ -21,3 +24,6 @@ class UserUpdate(BaseModel):
     display_name: Optional[str] = Field(None, min_length=1, max_length=100)
     timezone: Optional[str] = Field(None, min_length=1, max_length=50)
     briefing_time: Optional[time] = None
+    reminder_intensity: Optional[Literal["minimal", "normal", "aggressive"]] = None
+    quiet_hours_start: Optional[time] = None
+    quiet_hours_end: Optional[time] = None

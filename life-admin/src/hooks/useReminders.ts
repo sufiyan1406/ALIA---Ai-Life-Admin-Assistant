@@ -4,9 +4,12 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   getReminders,
   createReminder as apiCreateReminder,
+  updateReminder as apiUpdateReminder,
+  dismissReminder as apiDismissReminder,
   deleteReminder as apiDeleteReminder,
   type ReminderResponse,
   type ReminderChannel,
+  type ReminderUpdate,
 } from '@/lib/api/reminders';
 
 interface UseRemindersReturn {
@@ -16,8 +19,12 @@ interface UseRemindersReturn {
   refetch: () => Promise<void>;
   getForTask: (taskId: string) => ReminderResponse[];
   createReminder: (taskId: string, remindAt: string, channel?: ReminderChannel) => Promise<void>;
+  updateReminder: (id: string, update: ReminderUpdate) => Promise<void>;
+  dismissReminder: (id: string) => Promise<void>;
   deleteReminder: (id: string) => Promise<void>;
   countForTask: (taskId: string) => number;
+  activeReminders: ReminderResponse[];
+  sentReminders: ReminderResponse[];
 }
 
 export function useReminders(): UseRemindersReturn {
@@ -49,11 +56,15 @@ export function useReminders(): UseRemindersReturn {
   );
 
   const countForTask = useCallback(
-    (taskId: string) => reminders.filter((r) => r.task_id === taskId && !r.sent).length,
+    (taskId: string) => reminders.filter((r) => r.task_id === taskId && r.status === 'pending').length,
     [reminders]
   );
 
-  const createReminder = async (taskId: string, remindAt: string, channel: ReminderChannel = 'in-app') => {
+  const activeReminders = reminders.filter((r) => r.status === 'pending');
+
+  const sentReminders = reminders.filter((r) => r.status === 'sent');
+
+  const createReminder = async (taskId: string, remindAt: string, channel: ReminderChannel = 'email') => {
     try {
       const newReminder = await apiCreateReminder({
         task_id: taskId,
@@ -65,6 +76,28 @@ export function useReminders(): UseRemindersReturn {
       ));
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create reminder';
+      setError(message);
+      throw err;
+    }
+  };
+
+  const updateReminder = async (id: string, update: ReminderUpdate) => {
+    try {
+      const updated = await apiUpdateReminder(id, update);
+      setReminders((prev) => prev.map((r) => r.id === id ? updated : r));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to update reminder';
+      setError(message);
+      throw err;
+    }
+  };
+
+  const dismissReminder = async (id: string) => {
+    try {
+      const dismissed = await apiDismissReminder(id);
+      setReminders((prev) => prev.map((r) => r.id === id ? dismissed : r));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to dismiss reminder';
       setError(message);
       throw err;
     }
@@ -91,7 +124,11 @@ export function useReminders(): UseRemindersReturn {
     refetch,
     getForTask,
     createReminder,
+    updateReminder,
+    dismissReminder,
     deleteReminder,
     countForTask,
+    activeReminders,
+    sentReminders,
   };
 }
